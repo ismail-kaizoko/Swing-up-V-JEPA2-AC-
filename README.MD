@@ -11,12 +11,14 @@
 ### The Roadmap :
 
 - [ ] Code _jointly_ the Agent and the Video generator
-- [ ] Pretrain V-Jepa on generated videos following the paper
+- [ ] Pretrain V-Jepa on generated videos, no action conditioning in this step.
 - [ ] Train the Action-Conditioned Predictor following the Jepa-EMbeddings.
-- [ ] Test
+- [ ] CEM planing
 
 ### Details :
 
+- Although the problem looks simple (1D acton space, 2D pendulum), the best policy to learn isn't obvious, the world-models predict actions that will make the embeddings of frame:t looks closer to frame:t+1, learning that "we must get as far from target so we build energy to get closer in next period" seems complex for the model to catch it, this is what this repository for. (I have no prior idea if this will work !!)
+
 - To learn the actual swinging back and forth (neregy pupmping) to move the ball to reach highest points every period, there are must be a constraint on the maximum posssible delivered torque. $T_{max} << T_h$ where $T_h$ is the torque required to keep the ball still ( _in equilibrium_ ) on $\theta = 0$. which equals by solving the PDE equation of equation gives : $ T_h = m*g*L $
 
-- Equation of movement : $ I * theta_ddot = m*g*l*sin(theta) - b\*theta_dot + T $
+- Equation of movement : $ I.\ddot{\theta} = m.g.l.sin(\theta) - b.\dot{\theta} + T $
