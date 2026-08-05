@@ -15,20 +15,26 @@ which is exactly the kind of action pattern needed to pump energy into
 the pendulum and see a wide range of swing amplitudes in the dataset.
 
 OU discretized update:
-    u_{t+1} = u_t + theta_ou*(mu - u_t)*dt + sigma*sqrt(dt)*eps_t,  eps_t ~ N(0,1)
+    T_{t+1} = T_t + theta_ou*(mu - u_t)*dt + sigma*sqrt(dt)*eps_t,  eps_t ~ N(0,1)
 """
 import numpy as np
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 from pathlib import Path
 from env.physics import PendulumParams
 from env.pendulum_env import PendulumSwingUpEnv
 
 
-def ou_action_sequence(rng, n_steps, dt, u_max, theta_ou=1.0, sigma=3.0):
-    u = np.zeros(n_steps, dtype=np.float32)
+
+
+
+def ou_action_sequence(rng, n_steps, dt, T_max, theta_oT=1.0, sigma=3.0):
+    T = np.zeros(n_steps, dtype=np.float32)
     for t in range(1, n_steps):
         eps = rng.standard_normal()
-        u[t] = u[t - 1] + theta_ou * (0.0 - u[t - 1]) * dt + sigma * np.sqrt(dt) * eps
-    return np.clip(u, -u_max, u_max)
+        T[t] = T[t - 1] + theta_oT * (0.0 - T[t - 1]) * dt + sigma * np.sqrt(dt) * eps
+    return np.clip(T, -T_max, T_max)
 
 
 def collect_episode(env, rng, n_steps):
@@ -39,17 +45,18 @@ def collect_episode(env, rng, n_steps):
     frames[0] = env.reset(rng)
     states[0] = (env.theta, env.theta_dot)
 
-    u_seq = ou_action_sequence(rng, n_steps, env.p.dt, env.p.u_max)
+    T_seq = ou_action_sequence(rng, n_steps, env.p.dt, env.p.T_max)
+    T_null = np.zeros(n_steps)
     for t in range(n_steps):
-        obs, info = env.step(u_seq[t])
+        obs, info = env.step(T_seq[t])
         frames[t + 1] = obs
-        actions[t] = u_seq[t]
+        actions[t] = T_seq[t]
         states[t + 1] = (info["theta"], info["theta_dot"])
 
     return frames, actions, states
 
 
-def main(n_episodes: int = 2000, n_steps: int = 100, img_size: int = 64,
+def main(n_episodes: int = 100, n_steps: int = 100, img_size: int = 64,
          out_dir: str = "data/rollouts", seed: int = 0):
     rng = np.random.default_rng(seed)
     env = PendulumSwingUpEnv(img_size=img_size)
