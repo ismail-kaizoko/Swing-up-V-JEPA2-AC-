@@ -33,8 +33,8 @@ class PendulumParams:
     m: float = 1.0          # ball mass (kg)
     l: float = 1.0          # rod length (m)
     g: float = 9.81         # gravity (m/s^2)
-    b: float = 0.1            # damping / friction coefficient
-    dt: float = 0.05        # integration timestep (s), i.e. 20 Hz control
+    b: float = 0.2            # damping / friction coefficient
+    dt: float = 0.01        # integration timestep (s), i.e. 100 Hz control
     max_speed: float = 8.0  # clip |theta_dot| to avoid numerical blow-up
     T_max = m*g*l/10        # torque limit (N*m) — deliberately << m*g*l
 

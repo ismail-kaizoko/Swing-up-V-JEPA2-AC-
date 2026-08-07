@@ -6,7 +6,7 @@
 
 - Physical simulation model of a **Pendulum** swinging in a 2D space, where all physical constraints are included : drag, acceleration, mass, momentum...
 - The pendulum (_the agent_) can be given a torque (_the action_) ranging in [$-T_{max}, +T_{max}$] ( _1D continous action space_ )
-- The objective : learn a the rigth sequence of torques to communicate to the Pendulum (_the optimal policy_) so it moves from being Vertical ($\theta = 0 $) To be Horizental ($ +-\theta = \pi / 2$).
+- The objective : learn a the rigth sequence of torques to communicate to the Pendulum (_the optimal policy_) so it moves from being Vertical ( $ \theta = \pi $) To be Horizental ( $ \theta = 0 $).
 
 ### The Roadmap :
 

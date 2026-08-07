@@ -5,7 +5,7 @@ transitions covering the state-action space, so what gets learned is the
 *dynamics*, not any one trajectory. CEM planning (stage 3) is what later
 searches this learned model for the swing-up strategy.
 
-Why not i.i.d. random torque? At 100 Hz, independent random torque per step
+Why not i.i.d. random torque? At 20 Hz, independent random torque per step
 mostly cancels out over a few steps (its net effect on velocity averages
 toward zero) — the pendulum barely leaves its starting angle. Instead we
 sample torque from an Ornstein-Uhlenbeck (OU) process: a temporally
@@ -21,6 +21,7 @@ import numpy as np
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).resolve().parents[1]))
+from itertools import product
 from pathlib import Path
 from env.physics import PendulumParams
 from env.pendulum_env import PendulumSwingUpEnv
@@ -62,26 +63,25 @@ def collect_episode(env, rng, n_steps, free = True):
     return frames, actions, states
 
 
+def main(n_episodes: int = 100, duration: int = 20, img_size: int = 64,
+         out_dir: str = "data/rollouts/test", seed: int = 0):
 
-def main(n_episodes: int = 100, n_steps: int = 1000, img_size: int = 64,
-         out_dir: str = "data/rollouts", seed: int = 0):
     rng = np.random.default_rng(seed)
     env = PendulumSwingUpEnv(img_size=img_size)
+    n_frames = int(duration / env.p.dt)
     out_path = Path(out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
-    for ep in range(n_episodes):
-        theta0 = rng.uniform(-np.pi, np.pi)                                    # full range
-        theta_dot0 = rng.uniform(-env.p.max_speed / 2, env.p.max_speed / 2)    # decoupled energy
-        env.theta, env.theta_dot = float(theta0), float(theta_dot0)
-        frames, actions, states = collect_episode(env, rng, n_steps)
-        np.savez_compressed(out_path / f"episode_{ep:05d}.npz",
-                             frames=frames, actions=actions, states=states)
-        if (ep + 1) % 200 == 0:
-            print(f"collected {ep + 1}/{n_episodes} episodes")
+    theta0 = np.pi/4
+    theta_dot0 = 0
+    scenario=0
+
+    env.theta, env.theta_dot = float(theta0), float(theta_dot0)
+    frames, actions, states = collect_episode(env, rng, n_frames)
+    np.savez_compressed(out_path / f"episode_{scenario:05d}.npz",
+                            frames=frames, actions=actions, states=states)
+
 
 
 if __name__ == "__main__":
     main()
-
-

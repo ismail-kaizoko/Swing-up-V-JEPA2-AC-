@@ -63,19 +63,21 @@ def collect_episode(env, rng, n_steps, free = True):
     return frames, actions, states
 
 
-def main(n_episodes: int = 100, n_steps: int = 1000, img_size: int = 64,
+def main(n_episodes: int = 100, duration: int = 100, img_size: int = 64,
          out_dir: str = "data/rollouts", seed: int = 0):
+
     rng = np.random.default_rng(seed)
     env = PendulumSwingUpEnv(img_size=img_size)
+    n_frames = int(duration / env.p.dt)
     out_path = Path(out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
     theta0s = np.linspace(-np.pi,np.pi, 10)
-    theta_dot0s = np.linspace(-env.p.max_speed, env.p.max_speed, 10)
+    theta_dot0s = np.linspace(0, env.p.max_speed, 10)
     scenario=0
 
     for theta0, theta_dot0 in product(theta0s, theta_dot0s):
         env.theta, env.theta_dot = float(theta0), float(theta_dot0)
-        frames, actions, states = collect_episode(env, rng, n_steps)
+        frames, actions, states = collect_episode(env, rng, n_frames)
         np.savez_compressed(out_path / f"episode_{scenario:05d}.npz",
                              frames=frames, actions=actions, states=states)
         if (scenario + 1) % 200 == 0:

@@ -17,7 +17,7 @@ def load_episode(path):
     return data["frames"], data["actions"], data["states"]
 
 
-def save_video(frames: np.ndarray, out_path: Path, fps: int = 20):
+def save_video(frames: np.ndarray, out_path: Path, fps: int = 100):
     # frames: (T, H, W) uint8 grayscale -> most video codecs expect 3
     # channels, so broadcast grayscale to RGB by repeating the channel.
     rgb_frames = np.repeat(frames[..., None], 3, axis=-1)
@@ -43,7 +43,7 @@ def plot_trajectory(actions: np.ndarray, states: np.ndarray, dt: float, out_path
     plt.close(fig)
 
 
-def visualize_episode(npz_path: str, out_dir: str = "data/visualizations", dt: float = 0.05):
+def visualize_episode(npz_path: str, out_dir: str = "data/visualizations", dt: float = 0.01):
     npz_path = Path(npz_path)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -59,3 +59,5 @@ def visualize_episode(npz_path: str, out_dir: str = "data/visualizations", dt: f
 if __name__ == "__main__":  
     import sys
     visualize_episode(sys.argv[1])
+
+
