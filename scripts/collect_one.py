@@ -38,15 +38,16 @@ def ou_action_sequence(rng, n_steps, dt, T_max, theta_oT=1.0, sigma=3.0):
     return np.clip(T, -T_max, T_max)
 
 
-def collect_episode(env, rng, n_steps, free = True):
+def collect_episode(env, theta0, theta_dot0, n_steps, free = True):
     "collects episodes "
     "free : when True, it releases the pendulum with 0 tork during the whole episode. "
     frames = np.zeros((n_steps + 1, env.renderer.img_size, env.renderer.img_size), dtype=np.uint8)
     actions = np.zeros(n_steps, dtype=np.float32)
     states = np.zeros((n_steps + 1, 2), dtype=np.float32)  # (theta, theta_dot) — eval-only
 
-    frames[0] = env.reset(rng)
+    frames[0] = env.reset(theta0, theta_dot0)
     states[0] = (env.theta, env.theta_dot)
+    rng = np.random.default_rng(seed = 0)
 
     if free : 
         T_seq = np.zeros(n_steps)
@@ -63,21 +64,21 @@ def collect_episode(env, rng, n_steps, free = True):
     return frames, actions, states
 
 
-def main(n_episodes: int = 100, duration: int = 20, img_size: int = 64,
-         out_dir: str = "data/rollouts/test", seed: int = 0):
+def main(n_episodes: int = 100, duration: int = 100,
+         out_dir: str = "data/rollouts/test"):
 
-    rng = np.random.default_rng(seed)
-    env = PendulumSwingUpEnv(img_size=img_size)
+    
+    env = PendulumSwingUpEnv()
     n_frames = int(duration / env.p.dt)
     out_path = Path(out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
-    theta0 = np.pi/4
+    theta0 = np.pi/2
     theta_dot0 = 0
     scenario=0
 
     env.theta, env.theta_dot = float(theta0), float(theta_dot0)
-    frames, actions, states = collect_episode(env, rng, n_frames)
+    frames, actions, states = collect_episode(env, theta0=theta0, theta_dot0=theta_dot0, n_steps=n_frames )
     np.savez_compressed(out_path / f"episode_{scenario:05d}.npz",
                             frames=frames, actions=actions, states=states)
 

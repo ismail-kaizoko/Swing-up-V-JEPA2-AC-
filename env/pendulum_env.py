@@ -10,17 +10,23 @@ from env.renderer import PendulumRenderer
 
 
 class PendulumSwingUpEnv:
-    def __init__(self, params: PendulumParams = None, img_size: int = 64):
+    def __init__(self, params: PendulumParams = None):
         self.p = params or PendulumParams()
-        self.renderer = PendulumRenderer(img_size=img_size)
+        self.renderer = PendulumRenderer()
         self.theta = None
         self.theta_dot = None
 
-    def reset(self, rng: np.random.Generator, noise: float = 0.1):
+    def reset(self, theta0, theta_dot0, Perturb=False, noise: float = 0.1):
         # start hanging down (theta=pi) with a small random perturbation
         # so rollouts within a dataset aren't all identical
-        self.theta = np.pi + rng.uniform(-noise, noise)
-        self.theta_dot = rng.uniform(-noise, noise)
+        self.theta = theta0 
+        self.theta_dot = theta_dot0
+
+        if Perturb :
+            rng = np.random.default_rng(seed = 0)
+            self.theta += rng.uniform(-noise, noise)
+            self.theta_dot += rng.uniform(-noise, noise)
+
         return self._obs()
 
     def step(self, u: float):

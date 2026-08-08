@@ -65,6 +65,6 @@ def step(theta: np.ndarray, theta_dot: np.ndarray, u: np.ndarray, p: PendulumPar
     # wrap into (-pi, pi]: atan2(sin(x), cos(x)) is the standard trick for
     # angle-wrapping — it maps any real x back onto the unit circle without
     # the branch-boundary bugs a manual `% (2*pi)` tends to introduce.
-    theta_new = np.arctan2(np.sin(theta_new), np.cos(theta_new))
+    # theta_new = np.arctan2(np.sin(theta_new), np.cos(theta_new))
 
     return theta_new, theta_dot_new
